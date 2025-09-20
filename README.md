@@ -1,1 +1,3 @@
 - 우리학급 홈페이지 https://lokylove155.github.io/myhome/# myhome
+-https://script.google.com/macros/s/AKfycbwkANJAUXgMhgUzkx-KzkjNo9BD8vtUafg79nbNFP3alNfKlRtGaS-34dqxVSQwpRA4/exec
+-https://script.google.com/macros/s/AKfycbyzplZ1oMnQIjTFb_yRxQHBQAa9oYRedfeZhgdjCXW2yUMJI5K8laKeO0RLSTqpq7jC/exec
