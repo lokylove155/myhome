@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테토남 & 에겐녀 성향 테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
+        body {
+            font-family: 'Nanum Gothic', sans-serif;
+            background: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .quiz-container {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .bg-gradient-header {
+            background: linear-gradient(135deg, #f97316, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-primary {
+            background: #4f46e5;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .answer-btn {
+            background: #f1f5f9;
+            transition: all 0.2s ease;
+        }
+        .answer-btn:hover {
+            background: #e2e8f0;
+            transform: scale(1.02);
+        }
+        .answer-btn.selected {
+            background: #60a5fa;
+            color: white;
+        }
+        .progress-bar-container {
+            background: #e2e8f0;
+        }
+        .progress-bar {
+            background: #4f46e5;
+            transition: width 0.3s ease-in-out;
+        }
+        #result-container {
+            animation: slideInUp 0.7s ease-out;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="container mx-auto p-4 sm:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-5xl font-extrabold bg-gradient-header leading-tight">
+                테토남 & 에겐녀 성향 테스트
+            </h1>
+            <p class="mt-4 text-sm sm:text-lg text-gray-600">당신은 어떤 K-Pop 아이돌 멤버와 닮았을까요?</p>
+        </div>
+
+        <div id="quiz-container" class="quiz-container p-6 sm:p-12">
+            <div id="start-screen" class="text-center">
+                <p class="text-lg sm:text-xl text-gray-700">광화문의 고즈넉함과 서울의 활기찬 에너지가 만난 곳,<br class="hidden sm:block"> 당신의 잠재된 매력을 찾아보세요!</p>
+                <button id="start-btn" class="mt-8 btn-primary text-white font-bold py-3 px-8 rounded-full shadow-lg">
+                    테스트 시작하기
+                </button>
+            </div>
+            
+            <div id="question-screen" class="hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <p class="text-lg font-bold">문제 <span id="current-question-number">1</span> / <span id="total-questions"></span></p>
+                    <div class="w-2/3 h-2 rounded-full overflow-hidden progress-bar-container">
+                        <div id="progress-bar" class="h-full rounded-full progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <h2 id="question-text" class="text-xl sm:text-2xl font-bold mb-6 text-gray-800"></h2>
+                <div id="answer-options" class="flex flex-col space-y-4">
+                    <!-- 답변 옵션이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <div id="result-container" class="hidden text-center">
+                <h2 id="result-title" class="text-2xl sm:text-3xl font-bold bg-gradient-header mb-4"></h2>
+                <p id="result-description" class="text-lg text-gray-700 leading-relaxed mb-6"></p>
+                <div class="bg-gray-100 p-6 rounded-lg border border-gray-200">
+                    <p class="text-lg font-bold text-gray-800">당신의 유형은...</p>
+                    <p id="result-member" class="text-3xl sm:text-4xl font-extrabold text-blue-700 mt-2 mb-4"></p>
+                </div>
+                <button id="restart-btn" class="mt-8 btn-primary text-white font-bold py-3 px-8 rounded-full shadow-lg">
+                    다시 하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "광화문역에서 누군가와 약속이 있습니다. 당신의 선택은?",
+                answers: [
+                    { text: "약속 시간 10분 전에 도착해서, 주변 맛집을 검색한다.", score: { esfp: 1, estp: 1 } },
+                    { text: "세종대왕 동상 앞에서 사진을 찍고, SNS에 올린다.", score: { enfp: 1, infp: 1 } },
+                    { text: "광화문 광장의 역사를 찾아보며, 오늘을 계획한다.", score: { istj: 1, intj: 1 } },
+                    { text: "약속 장소로 곧장 이동하여, 동선과 주변 환경을 파악한다.", score: { entj: 1, estj: 1 } }
+                ]
+            },
+            {
+                q: "광화문에서 핫한 K-Pop 아이돌이 버스킹을 합니다. 당신의 반응은?",
+                answers: [
+                    { text: "가장 좋은 자리를 선점하고, 응원봉을 흔들며 열정적으로 즐긴다.", score: { esfp: 1, enfp: 1 } },
+                    { text: "멀리서 지켜보며, 그들의 노래와 퍼포먼스를 분석한다.", score: { intj: 1, istj: 1 } },
+                    { text: "친구들에게 실시간으로 영상을 보내며, 흥분을 나눈다.", score: { entj: 1, estj: 1 } },
+                    { text: "조용히 멜로디를 흥얼거리며, 감동에 젖어든다.", score: { infp: 1, isfp: 1 } }
+                ]
+            },
+            {
+                q: "복잡한 서울 시내, 길을 잃었습니다. 당신의 행동은?",
+                answers: [
+                    { text: "지도를 켜고, 가장 빠르고 정확한 길을 논리적으로 파악한다.", score: { entj: 1, intj: 1 } },
+                    { text: "주변 사람들에게 친절하게 길을 물어본다.", score: { esfj: 1, isfj: 1 } },
+                    { text: "새로운 길을 탐험하는 것을 즐기며, 우연히 발견한 맛집에 들어간다.", score: { enfp: 1, entp: 1 } },
+                    { text: "상황을 빠르게 판단하고, 택시를 잡는다.", score: { estp: 1, istp: 1 } }
+                ]
+            },
+            {
+                q: "새로운 K-Pop 그룹의 콘셉트 기획 회의에 참여했습니다. 당신의 역할은?",
+                answers: [
+                    { text: "팀의 비전을 제시하고, 장기적인 성공 전략을 계획한다.", score: { entj: 1, enfj: 1 } },
+                    { text: "멤버들의 개성을 살릴 수 있는 독특한 아이디어를 쏟아낸다.", score: { entp: 1, isfp: 1 } },
+                    { text: "멤버들이 편안하게 의견을 낼 수 있도록 분위기를 조성한다.", score: { esfj: 1, infp: 1 } },
+                    { text: "콘셉트의 성공 가능성을 데이터와 시장 분석을 통해 검토한다.", score: { istj: 1, intj: 1 } }
+                ]
+            },
+            {
+                q: "강남의 화려한 파티에 초대되었습니다. 당신의 선택은?",
+                answers: [
+                    { text: "가장 트렌디한 옷을 입고, 모든 사람과 어울리며 분위기를 주도한다.", score: { esfj: 1, esfp: 1 } },
+                    { text: "한쪽 구석에서 파티의 분위기를 조용히 관찰하며, 흥미로운 사람을 찾는다.", score: { infp: 1, intp: 1 } },
+                    { text: "파티에 필요한 모든 정보를 미리 파악하고, 전략적으로 즐긴다.", score: { estj: 1, intj: 1 } },
+                    { text: "파티보다는 편안한 사람들과의 소규모 모임을 선호한다.", score: { isfj: 1, isfp: 1 } }
+                ]
+            }
+        ];
+
+        const results = {
+            esfp: {
+                title: "테헤란로의 퍼포먼서",
+                member: "그룹의 비주얼이자 메인 댄서",
+                description: "당신은 타고난 끼와 재능으로 무대를 압도하는 퍼포먼서입니다. 언제나 밝은 에너지로 팀의 분위기를 밝게 만들며, 팬들과의 소통을 중요하게 생각합니다. 화려한 테헤란로의 불빛 아래에서 가장 빛나는 당신은, 팀의 활력소입니다."
+            },
+            estp: {
+                title: "청담동의 리드 보컬",
+                member: "팀의 추진력을 담당하는 리드 보컬",
+                description: "당신은 즉흥적이고 대담한 매력으로 팀에 긴장감을 불어넣는 리드 보컬입니다. 예측 불가능한 돌발 행동으로 무대를 더욱 흥미롭게 만들며, 어떤 위기 상황에서도 빠르게 대처하는 능력을 가지고 있습니다. '강남 스타일'의 자유로운 영혼이 당신의 모습입니다."
+            },
+            enfp: {
+                title: "이태원의 분위기 메이커",
+                member: "팀의 분위기 메이커이자 리드 댄서",
+                description: "당신은 항상 새로운 것을 추구하며 팀원들에게 영감을 주는 존재입니다. 넘치는 아이디어로 팀의 컨셉을 더욱 다채롭게 만들고, 밝은 에너지로 팬들에게 행복을 전합니다. 자유분방한 이태원의 골목길처럼, 당신의 매력은 끝이 없습니다."
+            },
+            infp: {
+                title: "인사동의 메인 보컬",
+                member: "감성적인 가사를 쓰는 메인 보컬",
+                description: "당신은 깊은 감수성으로 팬들의 마음을 울리는 아티스트입니다. 조용하지만 강한 존재감으로 팀의 음악적 색깔을 완성하며, 진정성 있는 가사와 멜로디로 모두에게 위로를 전합니다. 인사동의 고즈넉한 거리처럼, 당신의 음악은 평온하고 아름답습니다."
+            },
+            istj: {
+                title: "여의도의 프로듀서",
+                member: "팀의 프로듀서이자 리더",
+                description: "당신은 꼼꼼한 계획과 뛰어난 분석력으로 팀의 성공을 이끌어내는 리더입니다. 무대 위에서도 흔들림 없는 완벽한 퍼포먼스를 선보이며, 팀의 모든 일정을 체계적으로 관리합니다. 금융의 중심지 여의도처럼, 당신의 존재는 팀에 안정감을 가져다줍니다."
+            },
+            intj: {
+                title: "청량리 개발자",
+                member: "팀의 콘셉트 기획자이자 서브 보컬",
+                description: "당신은 팀의 컨셉과 비주얼을 책임지는 지능적인 전략가입니다. 독창적인 아이디어와 논리적인 사고로 팀의 이미지를 구축하며, 팬들의 취향을 정확히 저격합니다. 도시 개발이 한창인 청량리처럼, 당신의 기획력은 끝없이 발전합니다."
+            },
+            entj: {
+                title: "여의도의 젠틀맨",
+                member: "팀의 전략가이자 리더",
+                description: "당신은 타고난 리더십과 추진력으로 팀을 이끄는 존재입니다. 어떤 목표든 반드시 달성하는 강력한 의지를 가지고 있으며, 팬들을 위해 늘 새로운 길을 개척합니다. 금융의 중심지 여의도의 젠틀맨처럼, 당신은 자신감 넘치는 모습으로 모두에게 신뢰를 줍니다."
+            },
+            estj: {
+                title: "강남의 에이스",
+                member: "팀의 에이스이자 메인 댄서",
+                description: "당신은 그룹의 퍼포먼스를 책임지는 에이스입니다. 화려하고 카리스마 넘치는 무대 장악력으로 관객들을 사로잡으며, 팀의 모든 일에 적극적으로 참여합니다. 완벽한 모습으로 팬들의 사랑을 받는 당신은 강남의 활기찬 에너지와 닮았습니다."
+            },
+            isfp: {
+                title: "을지로의 아티스트",
+                member: "팀의 숨겨진 재능, 아티스트",
+                description: "당신은 조용하지만 자신만의 독특한 예술적 감각을 가진 아티스트입니다. 무대 위에서는 예상치 못한 매력을 뽐내며 팬들을 놀라게 합니다. 트렌디한 을지로의 힙한 분위기처럼, 당신의 매력은 시간이 지날수록 더욱 빛을 발합니다."
+            },
+            isfj: {
+                title: "서촌의 수호자",
+                member: "팀의 든든한 버팀목, 수호자",
+                description: "당신은 팀원들의 마음을 챙기며 조용히 뒤에서 지원하는 든든한 존재입니다. 팬들에게는 다정하고 친절한 모습으로 다가가며, 팀의 화목한 분위기를 유지하는 핵심 멤버입니다. 서촌의 고즈넉한 한옥처럼, 당신의 마음은 따뜻하고 편안합니다."
+            },
+            intp: {
+                title: "홍대의 괴짜 프로듀서",
+                member: "팀의 작곡가이자 서브 래퍼",
+                description: "당신은 독특한 사고방식과 기발한 아이디어로 팀의 음악에 새로운 색깔을 입힙니다. 사람들과 어울리기보다 혼자만의 시간을 가지며 깊은 고민을 통해 명곡을 탄생시킵니다. 자유로운 영혼의 홍대처럼, 당신의 음악은 틀에 갇히지 않습니다."
+            },
+            enfj: {
+                title: "압구정의 리더",
+                member: "팀의 정신적 지주이자 리더",
+                description: "당신은 팀원들의 잠재력을 끌어내고, 그룹의 성장을 이끄는 타고난 리더입니다. 팬들과의 소통을 통해 긍정적인 영향력을 전파하며, 모두에게 사랑받는 존재입니다. 트렌드를 선도하는 압구정처럼, 당신은 언제나 팀을 한발 앞서게 합니다."
+            }
+        };
+
+        let currentQuestionIndex = 0;
+        let scores = {};
+
+        const startScreen = document.getElementById('start-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const resultContainer = document.getElementById('result-container');
+        const startBtn = document.getElementById('start-btn');
+        const questionText = document.getElementById('question-text');
+        const answerOptions = document.getElementById('answer-options');
+        const currentQuestionNumberSpan = document.getElementById('current-question-number');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress-bar');
+        const resultTitle = document.getElementById('result-title');
+        const resultDescription = document.getElementById('result-description');
+        const resultMember = document.getElementById('result-member');
+        const restartBtn = document.getElementById('restart-btn');
+
+        totalQuestionsSpan.textContent = questions.length;
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            scores = {};
+            questions.forEach(q => q.answers.forEach(a => {
+                for (const key in a.score) {
+                    if (!scores[key]) scores[key] = 0;
+                }
+            }));
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.q;
+            answerOptions.innerHTML = '';
+            currentQuestionNumberSpan.textContent = currentQuestionIndex + 1;
+            progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+
+            currentQuestion.answers.forEach(answer => {
+                const btn = document.createElement('button');
+                btn.textContent = answer.text;
+                btn.className = "answer-btn w-full text-left p-4 rounded-lg shadow-sm font-medium";
+                btn.addEventListener('click', () => selectAnswer(answer));
+                answerOptions.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(answer) {
+            for (const key in answer.score) {
+                scores[key] += answer.score[key];
+            }
+
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function showResult() {
+            questionScreen.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+
+            let maxScore = -1;
+            let resultType = null;
+            for (const type in scores) {
+                if (scores[type] > maxScore) {
+                    maxScore = scores[type];
+                    resultType = type;
+                }
+            }
+            
+            const result = results[resultType] || {
+                title: "결과를 찾을 수 없습니다.",
+                member: "다시 시도해 주세요.",
+                description: "테스트를 다시 진행해 주세요."
+            };
+            
+            resultTitle.textContent = result.title;
+            resultDescription.textContent = result.description;
+            resultMember.textContent = result.member;
+
+            progressBar.style.width = `100%`;
+        }
+
+        function restartQuiz() {
+            resultContainer.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            progressBar.style.width = `0%`;
+        }
+
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', restartQuiz);
+    </script>
+</body>
+</html>
